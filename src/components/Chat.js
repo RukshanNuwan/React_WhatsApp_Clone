@@ -1,8 +1,27 @@
-import './Chat.css';
+import {useState} from "react";
 import {Avatar, IconButton} from "@mui/material";
 import {AttachFile, InsertEmoticon, Mic, MoreVert, SearchOutlined, SendOutlined} from "@mui/icons-material";
+import Axios from '../axios';
+import './Chat.css';
 
-const Chat = () => {
+const Chat = ({messages}) => {
+  const [input, setInput] = useState('');
+
+  console.log(input);
+
+  const sendMessage = async (event) => {
+    event.preventDefault();
+
+    await Axios.post('/messages/new', {
+      name: 'Rukshan Nuwan',
+      message: input,
+      timestamp: new Date().toUTCString(),
+      received: true
+    });
+
+    setInput('');
+  };
+
   return (
     <div className={'chat'}>
       <div className="chat__header">
@@ -27,29 +46,15 @@ const Chat = () => {
       </div>
 
       <div className="chat__body">
-        <p className="chat__message">
-          <span className="chat__name">Rukshan</span>
-          this is a message
-          <span className="chat__timestamp">
-            {new Date().toUTCString()}
+        {messages.map((message, index) => (
+          <p className={`chat__message ${message.received && 'chat__receiver'}`} key={index}>
+            <span className="chat__name">{message.name}</span>
+            {message.message}
+            <span className="chat__timestamp">
+            {message.timestamp}
           </span>
-        </p>
-
-        <p className="chat__message chat__receiver">
-          <span className="chat__name">Rukshan</span>
-          this is a message
-          <span className="chat__timestamp">
-            {new Date().toUTCString()}
-          </span>
-        </p>
-
-        <p className="chat__message">
-          <span className="chat__name">Rukshan</span>
-          this is a message
-          <span className="chat__timestamp">
-            {new Date().toUTCString()}
-          </span>
-        </p>
+          </p>
+        ))}
       </div>
 
       <div className="chat__footer">
@@ -58,12 +63,12 @@ const Chat = () => {
         <form>
           <input
             type="text"
-            // value={}
-            // onChange={}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
             placeholder="Type a message"
           />
 
-          <IconButton className='chat__send_icon'>
+          <IconButton className="chat__send_icon" onClick={sendMessage}>
             <SendOutlined/>
           </IconButton>
         </form>
